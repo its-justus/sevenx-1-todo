@@ -29,6 +29,7 @@ async fn main() {
 		.route("/hello", get(say_hello))
 		.route("/register", post(register))
 		.route("/login", post(login))
+		.route("/task", post(add_task))
 		.layer(cors_layer)
 		.layer(AddExtensionLayer::new(pool));
 
@@ -147,4 +148,62 @@ async fn authenticate(person: InputUser, pool: ConnPool) -> Option<User> {
 	};
 
 	Some(user)
+}
+
+#[derive(Debug, Deserialize)]
+struct InputTask {
+	text: String,
+	personid: uuid::Uuid
+}
+
+#[derive(Debug, Serialize)]
+struct Task {
+	id: i64,
+	text: String,
+	personid: uuid::Uuid
+}
+
+async fn add_task(Json(payload): Json<InputTask>, Extension(pool): Extension<ConnPool>) -> impl IntoResponse {
+	dbg!("add task", &payload);
+
+	let task = create_task(payload, pool).await;
+
+	match task {
+		Some(task) => return (StatusCode::OK, Json(task)),
+		None => return (StatusCode::UNAUTHORIZED, Json(Task{id: 0, text: String::from("fake"), personid: uuid::Builder::nil().build()}))
+	}
+}
+
+async fn create_task(task: InputTask, pool: ConnPool) -> Option<Task> {
+	let conn = pool.get().await;
+	match &conn {
+		Ok(_conn) => {}
+		Err(_e) => return None
+	}
+	dbg!("got connection?");
+
+	let row = conn.unwrap()
+		.query_one(
+			"insert into task (text, personid) values ($1, $2) returning id, text, personid",
+			&[&task.text, &task.personid]
+		)
+		.await;
+
+	match &row {
+		Ok(_row) => {}
+		Err(e) => {
+			dbg!(e);
+			return None}
+	}
+	dbg!("got row?");
+
+	let urow = row.unwrap();
+
+	let new_task = Task {
+		id: urow.get("id"),
+		text: urow.get("text"),
+		personid: urow.get("personid")
+	};
+
+	Some(new_task)
 }

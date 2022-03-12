@@ -5,6 +5,7 @@ import axios from "axios";
 import RegisterUser from "./components/RegisterUser/RegisterUser";
 import Login from "./components/Login/Login";
 import User from "./components/User/User";
+import AddTask from "./components/AddTask/AddTask";
 
 function App() {
     const { message, setMessage } = useState("");
@@ -23,6 +24,7 @@ function App() {
                 <button onClick={fetchMessage}>Ring Ring?</button>
                 <RegisterUser />
                 <Login />
+                <AddTask />
             </header>
         </div>
     );

@@ -1,0 +1,8 @@
+CREATE ROLE sevenx_1_todo WITH
+  LOGIN
+  NOSUPERUSER
+  INHERIT
+  NOCREATEDB
+  NOCREATEROLE
+  NOREPLICATION
+  PASSWORD 'password'; -- put a password here

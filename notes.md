@@ -1,3 +1,11 @@
-- running into axum issue. since axum is not a crate on crates.io yet, I have to use a locally cloned version of the repo. getting this import to work is tricky for some reason.
-  - answer is to set the path to "../../axum/axum". the actual axum lib is nested in the repo. perhaps a symlink would be a better option in the future
-- CORS presents an issue. solution is to add a CorsLayer to axum using the tower-http library. be sure to use allow methods, origin, and headers
+-   running into axum issue. since axum is not a crate on crates.io yet, I have to use a locally cloned version of the repo. getting this import to work is tricky for some reason.
+    -   answer is to set the path to "../../axum/axum". the actual axum lib is nested in the repo. perhaps a symlink would be a better option in the future
+-   CORS presents an issue. solution is to add a CorsLayer to axum using the tower-http library. be sure to use allow methods, origin, and headers
+-   git is being wonky due to windows and WSL. setting up an SSH key for WSL to use when pushing to github
+    -   setting up ssh for git is an ideal option. need to do this for all machines in the future. way simple and less of a hassle
+-   I think going forward I'll move all installed dev tools into WSL. its just way easier to deal with. I could probably move cargo and rust into WSL as well. The less I have to touch windows the better.
+-   Next Steps:
+    -   create postgres database
+    -   connect server to database
+    -   create route for registering
+-   TIME REMAINING: 5.5 hours

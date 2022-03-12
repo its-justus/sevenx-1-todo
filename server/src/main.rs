@@ -28,6 +28,7 @@ async fn main() {
     let app = Router::new()
 		.route("/hello", get(say_hello))
 		.route("/register", post(register))
+		.route("/login", post(login))
 		.layer(cors_layer)
 		.layer(AddExtensionLayer::new(pool));
 
@@ -64,7 +65,7 @@ async fn register(Json(payload): Json<InputUser>, Extension(pool): Extension<Con
 
 	match person {
 		Some(person) => return (StatusCode::CREATED, Json(person)),
-		None => return (StatusCode::CREATED, Json(User{login: String::from("fake"), id: uuid::Builder::nil().build()}))
+		None => return (StatusCode::INTERNAL_SERVER_ERROR, Json(User{login: String::from("fake"), id: uuid::Builder::nil().build()}))
 	}
 }
 
@@ -82,6 +83,50 @@ async fn create_person(person: InputUser, pool: ConnPool ) -> Option<User> {
 	let row = conn.unwrap()
 		.query_one(
 			"insert into person (login) values ($1) returning id, login",
+			&[&person.login]
+		)
+		.await;
+
+	match &row {
+		Ok(_row) => {}
+		Err(e) => {
+			dbg!(e);
+			return None}
+	}
+	dbg!("got row?");
+
+	let urow = row.unwrap();
+
+	let user = User {
+		id: urow.get("id"),
+		login: urow.get("login")
+	};
+
+	Some(user)
+}
+
+async fn login(Json(payload): Json<InputUser>, Extension(pool): Extension<ConnPool>) -> impl IntoResponse {
+	dbg!("user login", &payload);
+
+	let person = authenticate(payload, pool).await;
+
+	match person {
+		Some(person) => return (StatusCode::OK, Json(person)),
+		None => return (StatusCode::UNAUTHORIZED, Json(User{login: String::from("fake"), id: uuid::Builder::nil().build()}))
+	}
+}
+
+async fn authenticate(person: InputUser, pool: ConnPool) -> Option<User> {
+	let conn = pool.get().await;
+	match &conn {
+		Ok(_conn) => {}
+		Err(_e) => return None
+	}
+	dbg!("got connection?");
+
+	let row = conn.unwrap()
+		.query_one(
+			"select * from person where login = $1",
 			&[&person.login]
 		)
 		.await;

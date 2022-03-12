@@ -1,0 +1,3 @@
+- running into axum issue. since axum is not a crate on crates.io yet, I have to use a locally cloned version of the repo. getting this import to work is tricky for some reason.
+  - answer is to set the path to "../../axum/axum". the actual axum lib is nested in the repo. perhaps a symlink would be a better option in the future
+- CORS presents an issue. solution is to add a CorsLayer to axum using the tower-http library. be sure to use allow methods, origin, and headers

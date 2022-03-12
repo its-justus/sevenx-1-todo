@@ -7,7 +7,7 @@ function RegisterUser() {
     function register() {
         axios.post(
             "http://localhost:9001/register",
-            { name: name },
+            { login: name },
             {
                 headers: { "Content-Type": "application/json" },
             }

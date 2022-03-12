@@ -1,10 +1,12 @@
 use axum::{
 	response::{Html, IntoResponse},
-	routing::get,
+	routing::{get, post},
 	Json, Router,
 	http::StatusCode};
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer, Origin};
+
+use serde::{Serialize, Deserialize};
 
 #[tokio::main]
 async fn main() {
@@ -17,6 +19,7 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
 		.route("/hello", get(say_hello))
+		.route("/register", post(register))
 		.layer(cors_layer);
 
     // run it
@@ -29,5 +32,16 @@ async fn main() {
 }
 
 async fn say_hello() -> impl IntoResponse {
+	dbg!("Saying hello");
     (StatusCode::OK, Json(String::from("Hello, World!")))
+}
+
+#[derive(Debug, Deserialize)]
+struct InputUser {
+	login: String
+}
+
+async fn register(Json(payload): Json<InputUser>) -> impl IntoResponse {
+	dbg!(payload);
+	(StatusCode::CREATED, Json("hey, i made da user"))
 }

@@ -9,3 +9,6 @@
     -   connect server to database
     -   create route for registering
 -   TIME REMAINING: 5.5 hours
+-   adding the database and tables went well
+-   adding the register user component went well
+-   adding route for registration is challenging. need to learn the tokio-postgres type translations better

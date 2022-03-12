@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS public.person
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     login character varying(32) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT person_pkey PRIMARY KEY (id)
+    CONSTRAINT person_pkey PRIMARY KEY (id),
+    CONSTRAINT person_login_key UNIQUE (login)
 )
 
 TABLESPACE pg_default;

@@ -3,6 +3,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import axios from "axios";
 import RegisterUser from "./components/RegisterUser/RegisterUser";
+import Login from "./components/Login/Login";
 
 function App() {
     const { message, setMessage } = useState("");
@@ -19,6 +20,7 @@ function App() {
                 <img src={logo} className="App-logo" alt="logo" />
                 <button onClick={fetchMessage}>Ring Ring?</button>
                 <RegisterUser />
+                <Login />
             </header>
         </div>
     );

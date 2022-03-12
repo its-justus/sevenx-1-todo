@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 export const sessionSlice = createSlice({
     name: "session",
     initialState: {
-        id: "",
-        login: "",
+        id: undefined,
+        login: undefined,
     },
     reducers: {
         setSession: (state, action) => {
@@ -12,8 +12,8 @@ export const sessionSlice = createSlice({
             state.login = action.payload.login;
         },
         resetSession: (state) => {
-            state.id = "";
-            state.login = "";
+            state.id = undefined;
+            state.login = undefined;
         },
         setId: (state, action) => {
             state.id = action.payload;

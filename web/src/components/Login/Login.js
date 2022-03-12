@@ -1,7 +1,12 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { resetId, setId } from "../../store/sessionSlice";
+import {
+    resetId,
+    setId,
+    setSession,
+    resetSession,
+} from "../../store/sessionSlice";
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -17,11 +22,11 @@ function Login() {
             )
             .then((res) => {
                 console.debug(res);
-                dispatch(setId(res.data.id));
+                dispatch(setSession(res.data));
             })
             .catch((err) => {
                 console.debug(err);
-                dispatch(resetId());
+                dispatch(resetSession());
             });
     }
 

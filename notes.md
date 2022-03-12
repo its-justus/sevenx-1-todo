@@ -14,3 +14,5 @@
 -   adding route for registration is challenging. need to learn the tokio-postgres type translations better
 -   okay, finally got the db insert working for registration. still pretty hacky, just manually matching on the results to see if there are bugs, which isn't very ergonomic. need to figure out how to pass the errors from the connection back to the response. but it works for now.
 -   note for postgres: when using the uuid type as a primary key, make sure to set the default to gen_random_uuid(). it doesn't generate these automatically if set as primary key
+-   2.5 hours remaining. I think i'll be able to get the basic crud routes working now that I've got tokio postgres figured out. doubt that I'll get things up on EC2 though.
+-   installing react-redux to store the user id. eventually will use sagas for request handling, but don't have enough time right now.

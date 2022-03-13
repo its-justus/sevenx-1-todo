@@ -9,7 +9,7 @@ function AddTask() {
     function addTask() {
         axios
             .post(
-                "http://localhost:9001/task",
+                "http://localhost:9001/tasks",
                 { personid, text },
                 { "Content-Type": "application/json" }
             )

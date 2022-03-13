@@ -2,18 +2,33 @@ use axum::{
 	response::IntoResponse,
 	routing::{get, post},
 	Json, Router,
-	http::StatusCode, AddExtensionLayer, extract::Extension};
-use std::net::SocketAddr;
+	http::StatusCode, AddExtensionLayer, extract::{Extension, Query}};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tracing::Span;
+use uuid::Uuid;
+use std::{net::SocketAddr};
+use tower_http::{trace::TraceLayer, classify::ServerErrorsFailureClass};
 use tower_http::cors::{Any, CorsLayer, Origin};
 
 use serde::{Serialize, Deserialize};
 
 use bb8::{Pool, PooledConnection};
 use bb8_postgres::PostgresConnectionManager;
-use tokio_postgres::NoTls;
+use tokio_postgres::{NoTls, types::{ToSql, IsNull}};
+
+
 
 #[tokio::main]
 async fn main() {
+	// set up tracing
+	tracing_subscriber::registry()
+		.with(tracing_subscriber::EnvFilter::new(
+			std::env::var("RUST_LOG")
+				.unwrap_or_else(|_| "example_tracing_aka_logging=debug,tower_http=debug".into()),
+		))
+		.with(tracing_subscriber::fmt::layer())
+		.init();
+
 	// create connection pool
 	let connman = PostgresConnectionManager::new_from_stringlike("host=localhost dbname=sevenx_1_todo user=sevenx_1_todo password=sevenx", NoTls).unwrap();
 	let pool = Pool::builder().build(connman).await.unwrap();
@@ -29,13 +44,15 @@ async fn main() {
 		.route("/hello", get(say_hello))
 		.route("/register", post(register))
 		.route("/login", post(login))
-		.route("/task", post(add_task))
+		.route("/tasks", get(get_tasks).post(add_task))
 		.layer(cors_layer)
-		.layer(AddExtensionLayer::new(pool));
+		.layer(AddExtensionLayer::new(pool))
+		.layer(TraceLayer::new_for_http());
 
     // run it
     let addr = SocketAddr::from(([127, 0, 0, 1], 9001));
     println!("listening on {}", addr);
+	tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
@@ -56,6 +73,11 @@ struct InputUser {
 struct User {
 	id: uuid::Uuid,
 	login: String
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct UserId {
+	id: uuid::Uuid
 }
 
 type ConnPool = Pool<PostgresConnectionManager<NoTls>>;
@@ -163,6 +185,19 @@ struct Task {
 	personid: uuid::Uuid
 }
 
+#[derive(Debug, Serialize)]
+struct TaskList {
+	tasks: Vec<Task>
+}
+
+impl TaskList {
+	fn new() -> Self {
+		Self {
+			tasks: Vec::new()
+		}
+	}
+}
+
 async fn add_task(Json(payload): Json<InputTask>, Extension(pool): Extension<ConnPool>) -> impl IntoResponse {
 	dbg!("add task", &payload);
 
@@ -206,4 +241,55 @@ async fn create_task(task: InputTask, pool: ConnPool) -> Option<Task> {
 	};
 
 	Some(new_task)
+}
+
+
+
+async fn get_tasks(Query(userid): Query<UserId>, Extension(pool): Extension<ConnPool>) -> impl IntoResponse {
+	// dbg!("get tasks", &uid);
+
+	let tasks = query_tasks(userid, pool).await;
+
+	match tasks {
+		Some(tasks) => return (StatusCode::OK, Json(tasks)),
+		None => return (StatusCode::UNAUTHORIZED, Json(TaskList::new()))
+	}
+}
+
+async fn query_tasks(userid: UserId, pool: ConnPool) -> Option<TaskList> {
+	let conn = pool.get().await;
+	match &conn {
+		Ok(_conn) => {}
+		Err(_e) => return None
+	}
+	dbg!("got connection?");
+
+	let rows = conn.unwrap()
+		.query(
+			"select * from task where personid = $1",
+			&[&userid.id]
+		)
+		.await;
+
+	match &rows {
+		Ok(_rows) => {}
+		Err(e) => {
+			dbg!(e);
+			return None}
+	}
+	dbg!("got row?");
+
+	let mut list = TaskList::new();
+
+	for row in rows.unwrap() {
+		list.tasks.push(Task {
+			id: row.get("id"),
+			text: row.get("text"),
+			personid: row.get("personid")
+		});
+	}
+
+	
+
+	Some(list)
 }

@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import axios from "axios";
@@ -9,8 +9,6 @@ import AddTask from "./components/AddTask/AddTask";
 import Tasks from "./components/Tasks/Tasks";
 
 function App() {
-    const { message, setMessage } = useState("");
-
     function fetchMessage() {
         axios.get("http://localhost:9001/hello").then((res) => {
             console.log(res);

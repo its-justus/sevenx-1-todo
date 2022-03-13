@@ -1,7 +1,7 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setTasks, clearTasks } from "../../store/tasksSlice";
+import { setTasks } from "../../store/tasksSlice";
 
 function Tasks() {
     const tasks = useSelector((state) => state.tasks.list);

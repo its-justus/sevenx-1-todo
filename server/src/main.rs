@@ -4,17 +4,16 @@ use axum::{
 	Json, Router,
 	http::StatusCode, AddExtensionLayer, extract::{Extension, Query}};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use tracing::Span;
-use uuid::Uuid;
+
 use std::{net::SocketAddr};
-use tower_http::{trace::TraceLayer, classify::ServerErrorsFailureClass};
+use tower_http::trace::TraceLayer;
 use tower_http::cors::{Any, CorsLayer, Origin};
 
 use serde::{Serialize, Deserialize};
 
-use bb8::{Pool, PooledConnection};
+use bb8::Pool;
 use bb8_postgres::PostgresConnectionManager;
-use tokio_postgres::{NoTls, types::{ToSql, IsNull}};
+use tokio_postgres::NoTls;
 
 
 

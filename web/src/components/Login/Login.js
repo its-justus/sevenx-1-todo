@@ -1,12 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-    resetId,
-    setId,
-    setSession,
-    resetSession,
-} from "../../store/sessionSlice";
+import { setSession, resetSession } from "../../store/sessionSlice";
 
 function Login() {
     const [username, setUsername] = useState("");

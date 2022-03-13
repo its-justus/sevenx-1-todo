@@ -1,6 +1,9 @@
-# Getting Started with Create React App
+# installation instructions
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1. install npm https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+2. install dependencies by running `npm install` in the web directory
+3. start a dev server by running `npm start`. the web app should open up in your web browser, but if it doesn't just enter http://localhost:3000 in your browser
+4. make sure the rust server is running, then start messing around with the app!
 
 ## Available Scripts
 
